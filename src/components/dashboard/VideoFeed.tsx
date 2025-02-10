@@ -124,8 +124,8 @@ const VideoFeed = ({
     // Initial analysis
     runAnalysis();
 
-    // Reduced interval to 3 seconds
-    analyzeIntervalRef.current = window.setInterval(runAnalysis, 3000);
+    // Changed from 3000 to 1000 milliseconds (1 second)
+    analyzeIntervalRef.current = window.setInterval(runAnalysis, 1000);
   };
 
   const stopAnalysis = () => {
