@@ -17,21 +17,21 @@ export async function analyzeEmotion(imageBase64: string) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey.trim()}` // Ensure the key is trimmed
+        'Authorization': `Bearer ${apiKey.trim()}`
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: "You are an emotion analysis expert. Always respond with valid JSON following the exact structure requested."
+            content: "You are an emotion analysis expert. Always respond with valid JSON following the exact structure requested. The confidenceScore should reflect how clear and distinct the emotion is in the image, ranging from 0 to 1. Low confidence (0.1-0.3) for unclear expressions, medium (0.4-0.7) for somewhat clear expressions, and high (0.8-1.0) for very clear expressions."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze the facial expression in this image. Respond ONLY with a JSON object using this exact structure, no other text: { \"dominantEmotion\": string, \"emotions\": { \"happy\": number, \"sad\": number, \"angry\": number, \"surprised\": number, \"fearful\": number, \"disgusted\": number, \"neutral\": number }, \"confidenceScore\": number }. All emotion values must be percentages that sum to 100."
+                text: "Analyze the facial expression in this image. Consider factors like face visibility, expression clarity, and lighting when determining the confidenceScore. Respond ONLY with a JSON object using this exact structure, no other text: { \"dominantEmotion\": string, \"emotions\": { \"happy\": number, \"sad\": number, \"angry\": number, \"surprised\": number, \"fearful\": number, \"disgusted\": number, \"neutral\": number }, \"confidenceScore\": number }. All emotion values must be percentages that sum to 100. The confidenceScore should be between 0 and 1."
               },
               {
                 type: "image_url",
