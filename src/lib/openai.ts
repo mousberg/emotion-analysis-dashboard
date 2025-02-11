@@ -51,7 +51,15 @@ export async function analyzeEmotion(imageBase64: string) {
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API Error:', errorData);
-      throw new Error(`Failed to analyze emotion: ${errorData.error?.message || 'Unknown error'}`);
+      
+      // Handle specific error cases
+      if (errorData.error?.code === 'invalid_api_key') {
+        throw new Error("Invalid API key. Please check your OpenAI API key and try again.");
+      } else if (errorData.error?.code === 'insufficient_quota') {
+        throw new Error("Your OpenAI API key has run out of credits. Please check your usage limits.");
+      } else {
+        throw new Error(errorData.error?.message || 'Failed to analyze emotion');
+      }
     }
 
     const data = await response.json();
@@ -71,6 +79,6 @@ export async function analyzeEmotion(imageBase64: string) {
     }
   } catch (error) {
     console.error('Error analyzing emotion:', error);
-    return null;
+    throw error; // Re-throw to handle in the component
   }
 } 

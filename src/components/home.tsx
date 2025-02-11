@@ -22,15 +22,40 @@ const Home = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isStreaming, setIsStreaming] = useState(true);
   const [isCameraEnabled, setIsCameraEnabled] = useState(true);
-  const [currentEmotions, setCurrentEmotions] = useState<any>(null);
+  const [currentEmotions, setCurrentEmotions] = useState<any>({
+    dominantEmotion: "neutral",
+    emotions: {
+      happy: 0,
+      sad: 0,
+      angry: 0,
+      surprised: 0,
+      fearful: 0,
+      disgusted: 0,
+      neutral: 0
+    },
+    confidenceScore: 0
+  });
   const [timelineData, setTimelineData] = useState<EmotionTimelineData[]>([]);
   const [sessionStart] = useState(new Date());
   const [currentEmotion, setCurrentEmotion] = useState("neutral");
   const [apiKey, setApiKey] = useState<string | null>(
     localStorage.getItem("OPENAI_API_KEY")
   );
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleEmotionUpdate = useCallback((emotionData: any) => {
+    if (!emotionData) {
+      return;
+    }
+
+    if (emotionData.error) {
+      setApiError(emotionData.error);
+      return;
+    }
+    
+    // Clear error if we get valid data
+    setApiError(null);
+    
     setCurrentEmotions(emotionData);
     setCurrentEmotion(emotionData.dominantEmotion);
 
@@ -113,6 +138,7 @@ const Home = () => {
               onCameraToggle={() => setIsCameraEnabled(!isCameraEnabled)}
               onEmotionUpdate={handleEmotionUpdate}
               currentEmotion={currentEmotion}
+              error={apiError}
             />
           </div>
 

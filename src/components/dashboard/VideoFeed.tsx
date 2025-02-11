@@ -23,6 +23,7 @@ interface VideoFeedProps {
   isCameraEnabled?: boolean;
   onEmotionUpdate?: (emotionData: any) => void;
   currentEmotion?: string;
+  error?: string;
 }
 
 const VideoFeed = ({
@@ -31,7 +32,8 @@ const VideoFeed = ({
   onCameraToggle = () => {},
   isCameraEnabled = true,
   onEmotionUpdate = () => {},
-  currentEmotion = "neutral"
+  currentEmotion = "neutral",
+  error
 }: VideoFeedProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -116,7 +118,12 @@ const VideoFeed = ({
           }
         } catch (error) {
           console.error('Analysis error:', error);
-          stopAnalysis();
+          // Pass null to trigger error state in parent component
+          onEmotionUpdate(null);
+          // Don't stop analysis - let it keep trying
+          if (error instanceof Error) {
+            onEmotionUpdate({ error: error.message });
+          }
         }
       }
     };
@@ -138,6 +145,21 @@ const VideoFeed = ({
   return (
     <Card className="w-full max-w-[854px] bg-background border rounded-lg overflow-hidden">
       <div className="relative aspect-video bg-muted">
+        {error && (
+          <div className="absolute top-0 left-0 right-0 z-20 bg-red-500/90 text-white p-2 text-sm text-center">
+            {error}
+            <Button
+              variant="link"
+              className="text-white underline ml-2 p-0 h-auto"
+              onClick={() => {
+                localStorage.removeItem("OPENAI_API_KEY");
+                window.location.reload();
+              }}
+            >
+              Change API Key
+            </Button>
+          </div>
+        )}
         <video
           ref={videoRef}
           className={`w-full h-full object-cover transform scale-x-[-1] ${!isCameraEnabled || !isStreaming ? 'hidden' : ''}`}
